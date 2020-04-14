@@ -27,4 +27,6 @@ Dev Tools - Mini Profiler UI:
 
     Export requests to Postman, Curl, ...
     
-    Persist/Compare previous requests
+    Persist/Search/Compare previous requests
+    
+    Other profiler features: latency, execution times, statistics, hot spots 
