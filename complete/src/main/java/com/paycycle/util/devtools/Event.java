@@ -8,6 +8,7 @@ public class Event {
     Date startTime = new Date();
     Date endTime = new Date();
 
+
     public String getEventType() {
         return eventType;
     }

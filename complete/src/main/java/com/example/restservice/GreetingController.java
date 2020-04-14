@@ -3,6 +3,7 @@ package com.example.restservice;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.paycycle.rest.common.Result;
 import com.paycycle.util.devtools.HttpRequest;
 import com.paycycle.util.devtools.ThreadEvent;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -26,8 +27,12 @@ public class GreetingController {
 	// https://stackoverflow.com/questions/43317967/handle-response-syntaxerror-unexpected-end-of-input-when-using-mode-no-cors?rq=1
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping("/request")
-	public HttpRequest request(@RequestParam(value = "id", defaultValue = "") String id) {
-		return prepareRequest();
+	public Result request(@RequestParam(value = "id", defaultValue = "") String id) {
+		return Result.ResultBuilder
+				.aResult()
+				.data(prepareRequest())
+				.build();
+
 	}
 
 	private HttpRequest prepareRequest() {
