@@ -24,7 +24,7 @@ public class MethodTraceAspect {
     // FIXME: exclude lazy/indirect list from being serialized
     ObjectMapper mapper = new ObjectMapper();
 
-    @Pointcut(value = "execution(* com.example.*(..))")
+    @Pointcut(value = "execution(* com.example.restservice.GreetingController.*(..))")
     private void executionInService() {
         //do nothing, just for pointcut def
     }

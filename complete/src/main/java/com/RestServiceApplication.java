@@ -2,6 +2,7 @@ package com;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 /*- `@Configuration`: Tags the class as a source of bean definitions for the application
 context.
@@ -14,6 +15,7 @@ services in the `com/example` package, letting it find the controllers.
 */
 
 @SpringBootApplication
+@EnableAspectJAutoProxy(proxyTargetClass=true)
 public class RestServiceApplication {
 
     public static void main(String[] args) {

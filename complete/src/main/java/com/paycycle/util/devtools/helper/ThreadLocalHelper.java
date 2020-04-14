@@ -12,37 +12,40 @@ public class ThreadLocalHelper {
 
     // FIXME: synchronize
     public static void setMethodStack(Deque<Method> methodStack) {
-        ThreadLocalStack threadLocalStack = threadLocal.get();
-        if (null == threadLocalStack) {
-            threadLocalStack = new ThreadLocalStack();
-        }
+        ThreadLocalStack threadLocalStack = getThreadLocalStack();
         threadLocalStack.methodStack = methodStack;
-        threadLocal.set(threadLocalStack);
     }
 
     public static void setMainMethod(Method beginMethod) {
-        ThreadLocalStack threadLocalStack = threadLocal.get();
-        if (null == threadLocalStack) {
-            threadLocalStack = new ThreadLocalStack();
-        }
+        ThreadLocalStack threadLocalStack = getThreadLocalStack();
         threadLocalStack.beginMethod = beginMethod;
-        threadLocal.set(threadLocalStack);
     }
 
     public static Method getBeginMethod() {
-        ThreadLocalStack threadLocalStack = threadLocal.get();
+        ThreadLocalStack threadLocalStack = getThreadLocalStack();
+        /*ThreadLocalStack threadLocalStack = threadLocal.get();
         if (threadLocalStack == null) {
             return null;
-        }
+        }*/
         return threadLocalStack.beginMethod;
     }
 
     public static Deque<Method> getMethodStack() {
-        ThreadLocalStack threadLocalStack = threadLocal.get();
+        ThreadLocalStack threadLocalStack = getThreadLocalStack();
+        /*ThreadLocalStack threadLocalStack = threadLocal.get();
         if (threadLocalStack == null) {
             return null;
-        }
+        }*/
         return threadLocalStack.methodStack;
+    }
+
+    private static ThreadLocalStack getThreadLocalStack() {
+        ThreadLocalStack threadLocalStack = threadLocal.get();
+        if (null == threadLocalStack) {
+            threadLocalStack = new ThreadLocalStack();
+            threadLocal.set(threadLocalStack);
+        }
+        return threadLocalStack;
     }
 
 }
