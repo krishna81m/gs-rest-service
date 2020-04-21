@@ -53,7 +53,7 @@ import java.util.List;
  */
 @Aspect
 @Service
-@Configuration
+// @Configuration
 public class MethodTraceAspect {
 
     // FIXME: exclude lazy/indirect list from being serialized

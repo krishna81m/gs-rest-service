@@ -1,0 +1,23 @@
+<!DOCTYPE aspectj PUBLIC
+        "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
+<aspectj>
+    <!--
+    For some reason jar classes are not being scanned for applying aspects
+    even when component scanning was enabled
+
+    testing LTW based on https://github.com/dsyer/spring-boot-aspectj
+    using custom loadTimeWeaver -javaagent:
+    -->
+    <!-- AspectJ LTW instead of Spring AOP proxy -->
+    <weaver options="-debug -verbose -showWeaveInfo">
+        <!-- only weave classes in this package -->
+        <include within="com.example..*"/>
+        <include within="com.paycycle..*"/>
+        <include within="org.h2.command..*"/>
+    </weaver>
+    <aspects>
+        <!-- use only this aspect for weaving -->
+        <aspect name="com.paycycle.util.devtools.aspect.JDBCLogAspect"/>
+        <aspect name="com.paycycle.util.devtools.aspect.MethodTraceAspect"/>
+    </aspects>
+</aspectj>

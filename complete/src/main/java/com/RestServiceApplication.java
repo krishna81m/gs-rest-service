@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.EnableLoadTimeWeaving;
 
 /*- `@Configuration`: Tags the class as a source of bean definitions for the application
 context.
@@ -17,7 +18,8 @@ services in the `com/example` package, letting it find the controllers.
 
 @ComponentScan({"com", "org.h2.command"})
 @SpringBootApplication
-@EnableAspectJAutoProxy
+// @EnableAspectJAutoProxy
+// @EnableLoadTimeWeaving // LTW https://github.com/dsyer/spring-boot-aspectj
 public class RestServiceApplication {
 
     public static void main(String[] args) {

@@ -45,17 +45,16 @@ public class HttpLoggingFilter implements Filter {
             BufferedResponseWrapper bufferedResponse = new BufferedResponseWrapper(
                     httpServletResponse);
 
-
             final StringBuilder logMessage = new StringBuilder(
                     "REST Request - ").append("[HTTP METHOD:")
-                                      .append(httpServletRequest.getMethod())
-                                      .append("] [PATH INFO:")
-                                      .append(httpServletRequest.getServletPath())
-                                      .append("] [REQUEST PARAMETERS:").append(requestMap)
-                                      .append("] [REQUEST BODY:")
-                                      .append(bufferedRequest.getRequestBody())
-                                      .append("] [REMOTE ADDRESS:")
-                                      .append(httpServletRequest.getRemoteAddr()).append("]");
+                          .append(httpServletRequest.getMethod())
+                          .append("] [PATH INFO:")
+                          .append(httpServletRequest.getServletPath())
+                          .append("] [REQUEST PARAMETERS:").append(requestMap)
+                          .append("] [REQUEST BODY:")
+                          .append(bufferedRequest.getRequestBody())
+                          .append("] [REMOTE ADDRESS:")
+                          .append(httpServletRequest.getRemoteAddr()).append("]");
 
             // prepare request event
             TransactionIdUtil.setTransactionId();
