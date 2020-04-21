@@ -1,10 +1,9 @@
 package com.paycycle.util.devtools.aspect;
 
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.h2.command.Command;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -14,6 +13,7 @@ import java.lang.reflect.Field;
  *
  */
 @Aspect
+// @Service    // cannot debug with Spring @Service
 public class JDBCLogAspect {
     public static final String JDBC_DRIVER_STATEMENT_FIELD_NAME = "v";
 
