@@ -1,7 +1,11 @@
 package com.paycycle.util.devtools.filter;
 
-import com.paycycle.util.devtools.HttpRequest;
-import com.paycycle.util.devtools.helper.HttpRequestHelper;
+import com.paycycle.util.devtools.HttpRequestEvent;
+import com.paycycle.util.devtools.HttpResponseEvent;
+import com.paycycle.util.devtools.RequestParam;
+import com.paycycle.util.devtools.RequestTrace;
+import com.paycycle.util.devtools.helper.RequestTracer;
+import com.paycycle.util.devtools.helper.TransactionIdUtil;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +19,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Order(1)
@@ -40,6 +45,7 @@ public class HttpLoggingFilter implements Filter {
             BufferedResponseWrapper bufferedResponse = new BufferedResponseWrapper(
                     httpServletResponse);
 
+
             final StringBuilder logMessage = new StringBuilder(
                     "REST Request - ").append("[HTTP METHOD:")
                                       .append(httpServletRequest.getMethod())
@@ -51,11 +57,26 @@ public class HttpLoggingFilter implements Filter {
                                       .append("] [REMOTE ADDRESS:")
                                       .append(httpServletRequest.getRemoteAddr()).append("]");
 
-            HttpRequest httpRequest = HttpRequestHelper.createRequest(logMessage.toString());
+            // prepare request event
+            TransactionIdUtil.setTransactionId();
+            HttpRequestEvent requestEvent = new HttpRequestEvent();
+            requestEvent.setEventType(HttpRequestEvent.HTTP_REQUEST_EVENT_TYPES.REST_GET_REQUEST.name());
+            requestEvent.setServletPath(httpServletRequest.getServletPath());
+            requestEvent.setRequestParams(requestMap.entrySet().stream()
+                    .map(e -> RequestParam.of(e.getKey(), e.getValue()))
+                    .collect(Collectors.toList())
+                    );
+            requestEvent.setRequestBody(bufferedRequest.getRequestBody());
+            requestEvent.setRemoteAddress(httpServletRequest.getRemoteAddr());
+
+            RequestTrace httpRequest = RequestTracer.createRequest(requestEvent);
             chain.doFilter(bufferedRequest, bufferedResponse);
+            // Prepare response event
             logMessage.append(" [RESPONSE:")
                       .append(bufferedResponse.getContent()).append("]");
-            HttpRequestHelper.updateResponse(httpRequest, bufferedResponse.getContent());
+            HttpResponseEvent responseEvent = new HttpResponseEvent();
+            responseEvent.setResponseBody(bufferedResponse.getContent());
+            RequestTracer.updateResponse(httpRequest, responseEvent);
 
             log.info(logMessage.toString());
         } catch (Throwable a) {

@@ -31,17 +31,17 @@ import java.util.List;
  * }
  * </pre>
  */
-public class HttpRequest {
+public class RequestTrace {
 
     String tid = "1";
     Date startTime = new Date();
     Date endTime = new Date();
 
-    String request;
-    String response;
+    HttpRequestEvent request;
+    HttpResponseEvent response;
 
     // support for async/parallel execution for same request
-    List<ThreadEvent> threads = new ArrayList<>();
+    final List<ThreadEvent> threadEvents = new ArrayList<>();
 
     public String getTid() {
         return tid;
@@ -67,27 +67,23 @@ public class HttpRequest {
         this.endTime = endTime;
     }
 
-    public String getRequest() {
+    public HttpRequestEvent getRequest() {
         return request;
     }
 
-    public void setRequest(String request) {
+    public void setRequest(HttpRequestEvent request) {
         this.request = request;
     }
 
-    public String getResponse() {
+    public HttpResponseEvent getResponse() {
         return response;
     }
 
-    public void setResponse(String response) {
+    public void setResponse(HttpResponseEvent response) {
         this.response = response;
     }
 
-    public List<ThreadEvent> getThreads() {
-        return threads;
-    }
-
-    public void setThreads(List<ThreadEvent> threads) {
-        this.threads = threads;
+    public List<ThreadEvent> getThreadEvents() {
+        return threadEvents;
     }
 }

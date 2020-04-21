@@ -8,19 +8,19 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public final class HttpRequestHelper {
+public final class RequestTracer {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpRequestHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(RequestTracer.class);
 
     //  MDC.put("ThreadId", String.valueOf(Thread.currentThread().getId()));
-    public static final Map<String, HttpRequest> tIdRequestMap = new ConcurrentHashMap<>();
+    public static final Map<String, RequestTrace> tIdRequestMap = new ConcurrentHashMap<>();
 
     // simple time based ordering of tIds
     // everytime an event is added/updated, it is removed and added/offered to list at head/tail
     // any tId which has respond endTime + grace period is removed
     public static ConcurrentLinkedQueue<TidContext> tIds = new ConcurrentLinkedQueue<>();
 
-    public static HttpRequest createRequest(String httpRequestLog){
+    public static RequestTrace createRequest(HttpRequestEvent httpRequest){
         // LoggingFilter sets intuit_id in threadlocal as well as MC setMDC(TID, newTid);
         // in TransactionIdUtil.createTransactionId() -> com.intuit.util.TransactionIdUtil.setIntuitTid
 
@@ -28,25 +28,30 @@ public final class HttpRequestHelper {
         String threadId = String.valueOf(Thread.currentThread().getId());
         String tId = TransactionIdUtil.getTransactionId();
 
-        HttpRequest httpRequest  = new HttpRequest();
-        httpRequest.setTid(tId);
-        httpRequest.setStartTime(new Date());
+        RequestTrace trace  = new RequestTrace();
+        trace.setTid(tId);
+        trace.setStartTime(new Date());
 
         // setup default thread that will store events
         ThreadEvent threadEvent = new ThreadEvent();
         threadEvent.setThreadId(threadId);
+        trace.getThreadEvents().add(threadEvent);
 
-        httpRequest.setRequest(httpRequestLog.toString());
-
-        tIdRequestMap.put(tId, httpRequest);
+        trace.setRequest(httpRequest);
+        tIdRequestMap.put(tId, trace);
         updateCache(tId);
 
-        return httpRequest;
+        return trace;
     }
 
-    public static void updateResponse(HttpRequest httpRequest, String httpResponseLog){
-        httpRequest.setResponse(httpResponseLog);
-        httpRequest.setEndTime(new Date());
+    /**
+     * Update existing trace
+     * @param requestTrace
+     * @param responseEvent
+     */
+    public static void updateResponse(RequestTrace requestTrace, HttpResponseEvent responseEvent){
+        requestTrace.setResponse(responseEvent);
+        requestTrace.setEndTime(new Date());
         // TODO: clean up cache
     }
 
@@ -62,6 +67,7 @@ public final class HttpRequestHelper {
             log.warn("HttpLoggingFilter failed to add event as there is no tId");
         }
     }
+
     public static void addDBEvent(String sql) {
         DBExecEvent dbEvent = new DBExecEvent();
         DBExecEventData data = new DBExecEventData();
@@ -73,10 +79,11 @@ public final class HttpRequestHelper {
     }
 
     public static void addEvent(String tId, Event event){
-        HttpRequest httpRequest = tIdRequestMap.get(tId);
-        if(httpRequest != null && httpRequest.getThreads().size() > 0) {
+        RequestTrace requestTrace = tIdRequestMap.get(tId);
+        if(requestTrace != null && requestTrace.getThreadEvents().size() > 0) {
             // FIXME: add to the right thread
-            httpRequest.getThreads().get(0).getEvents().add(event);
+            requestTrace.getThreadEvents().get(0)
+                    .getEvents().add(event);
             updateCache(tId);
         } else {
             log.warn("HttpLoggingFilter failed to add event as there is no request for this tId");
@@ -95,12 +102,12 @@ public final class HttpRequestHelper {
         // remove older requests from the back based on its last update timestamp
     }
 
-    public static HttpRequest getCurrentRequest() {
+    public static RequestTrace getCurrentRequest() {
         String tId = TransactionIdUtil.getTransactionId();
         return getRequestByTId(tId);
     }
 
-    public static HttpRequest getRequestByTId(String tId) {
+    public static RequestTrace getRequestByTId(String tId) {
         return tIdRequestMap.get(tId);
     }
 
