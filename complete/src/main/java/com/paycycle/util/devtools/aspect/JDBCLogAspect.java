@@ -1,12 +1,22 @@
 package com.paycycle.util.devtools.aspect;
 
+import com.paycycle.util.devtools.DBExecEvent;
+import com.paycycle.util.devtools.DBExecEventData;
+import com.paycycle.util.devtools.DBParam;
+import com.paycycle.util.devtools.helper.RequestTracer;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.h2.command.Command;
+import org.h2.command.CommandContainer;
+import org.h2.expression.Parameter;
+import org.h2.expression.ParameterInterface;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * does not work unless Spring Boot scans the classes inside the jar
@@ -41,13 +51,47 @@ public class JDBCLogAspect {
                 String sql = (String) field.get(target);
                 // call information for logging later.
                 if (sql != null) {
+                    List<DBParam> dbParams = new ArrayList<>();
+                    if(target instanceof CommandContainer){
+                        ArrayList<? extends ParameterInterface> parameters = ((CommandContainer) target).getParameters();
+                        parameters.stream().forEach(p -> {
+                            DBParam dbParam = new DBParam();
+                            if(p instanceof Parameter) {
+                                dbParam.setName(((Parameter)p).getColumnName());
+                            }
+                            dbParam.setValue(p.getParamValue().getCurrentValue().toString());
+                            dbParams.add(dbParam);
+                        });
+                    }
+                    DBExecEvent execEvent = prepareDBExecEvent(sql, dbParams);
+                    RequestTracer.addEvent(execEvent);
                     // saveJdbcStatementExecuteInfo(SQL_USAGE, sql, callTime);
                 }
             }
+
+
+            /*Field parametersField = Command.class.getDeclaredField("parameters");
+            if (parametersField != null) {
+                parametersField.setAccessible(true);
+                Object obj = parametersField.get(target);
+
+                if(obj != null){
+
+                }
+            }*/
         } catch (Exception ex) {
             // throw new RuntimeException(ex);
         }
 
         return result;
+    }
+
+    private DBExecEvent prepareDBExecEvent(String sql, List<DBParam> dbParams) {
+        DBExecEvent dbExecEvent = new DBExecEvent();
+        DBExecEventData data = new DBExecEventData();
+        data.setSql(sql);
+        data.setParams(dbParams);
+        dbExecEvent.setData(data);
+        return dbExecEvent;
     }
 }

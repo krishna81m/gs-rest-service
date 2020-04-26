@@ -102,8 +102,17 @@ public final class RequestTracer {
         // remove older requests from the back based on its last update timestamp
     }
 
+    public static RequestTrace getLastRequest() {
+        TidContext tidContext = tIds.peek();
+        return getRequestByTId(tidContext.tId);
+    }
+
     public static RequestTrace getCurrentRequest() {
         String tId = TransactionIdUtil.getTransactionId();
+        return getRequestByTId(tId);
+    }
+
+    public static RequestTrace getRequest(String tId) {
         return getRequestByTId(tId);
     }
 
