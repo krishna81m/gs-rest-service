@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 // https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class TracingResource {
 
@@ -24,7 +25,6 @@ public class TracingResource {
 
 	// https://spring.io/guides/gs/rest-service-cors/
 	// https://stackoverflow.com/questions/43317967/handle-response-syntaxerror-unexpected-end-of-input-when-using-mode-no-cors?rq=1
-	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping("/trace")
 	public Result lastTrace(@RequestParam(value = "id", defaultValue = "last") String lastName) {
 		try {

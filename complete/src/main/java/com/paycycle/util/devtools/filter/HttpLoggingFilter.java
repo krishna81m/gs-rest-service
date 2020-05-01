@@ -27,6 +27,9 @@ public class HttpLoggingFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(HttpLoggingFilter.class);
 
+    private Set<String> excludedRequests = new HashSet<>(
+            Arrays.asList(new String[]{"/trace"}));
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
@@ -47,35 +50,47 @@ public class HttpLoggingFilter implements Filter {
 
             final StringBuilder logMessage = new StringBuilder(
                     "REST Request - ").append("[HTTP METHOD:")
-                          .append(httpServletRequest.getMethod())
-                          .append("] [PATH INFO:")
-                          .append(httpServletRequest.getServletPath())
-                          .append("] [REQUEST PARAMETERS:").append(requestMap)
-                          .append("] [REQUEST BODY:")
-                          .append(bufferedRequest.getRequestBody())
-                          .append("] [REMOTE ADDRESS:")
-                          .append(httpServletRequest.getRemoteAddr()).append("]");
+                    .append(httpServletRequest.getMethod())
+                    .append("] [PATH INFO:")
+                    .append(httpServletRequest.getServletPath())
+                    .append("] [REQUEST PARAMETERS:").append(requestMap)
+                    .append("] [REQUEST BODY:")
+                    .append(bufferedRequest.getRequestBody())
+                    .append("] [REMOTE ADDRESS:")
+                    .append(httpServletRequest.getRemoteAddr()).append("]");
 
             // prepare request event
-            TransactionIdUtil.setTransactionId();
-            HttpRequestEvent requestEvent = new HttpRequestEvent();
-            requestEvent.setEventType(HttpRequestEvent.HTTP_REQUEST_EVENT_TYPES.REST_GET_REQUEST.name());
-            requestEvent.setServletPath(httpServletRequest.getServletPath());
-            requestEvent.setRequestParams(requestMap.entrySet().stream()
-                    .map(e -> RequestParam.of(e.getKey(), e.getValue()))
-                    .collect(Collectors.toList())
-                    );
-            requestEvent.setRequestBody(bufferedRequest.getRequestBody());
-            requestEvent.setRemoteAddress(httpServletRequest.getRemoteAddr());
+            boolean ignoreTrace = excludedRequests.stream()
+                    .filter(f -> httpServletRequest.getServletPath().startsWith(f))
+                    .findFirst().isPresent();
 
-            RequestTrace httpRequest = RequestTracer.createRequest(requestEvent);
+            RequestTrace httpRequest = null;
+            if(!ignoreTrace) {
+                HttpRequestEvent requestEvent = new HttpRequestEvent();
+                TransactionIdUtil.setTransactionId();
+                requestEvent.setEventType(HttpRequestEvent.HTTP_REQUEST_EVENT_TYPES.REST_GET_REQUEST.name());
+                requestEvent.setServletPath(httpServletRequest.getServletPath());
+                requestEvent.setRequestParams(requestMap.entrySet().stream()
+                        .map(e -> RequestParam.of(e.getKey(), e.getValue()))
+                        .collect(Collectors.toList())
+                );
+                requestEvent.setRequestBody(bufferedRequest.getRequestBody());
+                requestEvent.setRemoteAddress(httpServletRequest.getRemoteAddr());
+
+                httpRequest = RequestTracer.createRequest(requestEvent);
+            }
+
             chain.doFilter(bufferedRequest, bufferedResponse);
+
             // Prepare response event
             logMessage.append(" [RESPONSE:")
-                      .append(bufferedResponse.getContent()).append("]");
-            HttpResponseEvent responseEvent = new HttpResponseEvent();
-            responseEvent.setResponseBody(bufferedResponse.getContent());
-            RequestTracer.updateResponse(httpRequest, responseEvent);
+                    .append(bufferedResponse.getContent()).append("]");
+            
+            if(!ignoreTrace) {
+                HttpResponseEvent responseEvent = new HttpResponseEvent();
+                responseEvent.setResponseBody(bufferedResponse.getContent());
+                RequestTracer.updateResponse(httpRequest, responseEvent);
+            }
 
             log.info(logMessage.toString());
         } catch (Throwable a) {
@@ -246,7 +261,7 @@ public class HttpLoggingFilter implements Filter {
             if (tee == null) {
                 bos = new ByteArrayOutputStream();
                 tee = new TeeServletOutputStream(original.getOutputStream(),
-                                                 bos);
+                        bos);
             }
             return tee;
 

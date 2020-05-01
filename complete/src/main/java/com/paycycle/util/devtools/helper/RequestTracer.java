@@ -20,6 +20,8 @@ public final class RequestTracer {
     // any tId which has respond endTime + grace period is removed
     public static ConcurrentLinkedQueue<TidContext> tIds = new ConcurrentLinkedQueue<>();
 
+    private volatile static TidContext lastTid = null;
+
     public static RequestTrace createRequest(HttpRequestEvent httpRequest){
         // LoggingFilter sets intuit_id in threadlocal as well as MC setMDC(TID, newTid);
         // in TransactionIdUtil.createTransactionId() -> com.intuit.util.TransactionIdUtil.setIntuitTid
@@ -96,15 +98,19 @@ public final class RequestTracer {
     private static void updateCache(String tId) {
         TidContext tidContext = TidContext.of(tId);
         boolean removed = tIds.remove(tidContext);
+
+        // offer add to tail
         tIds.offer(tidContext);
+        lastTid = tidContext;
         // updatetId(tId);
 
         // remove older requests from the back based on its last update timestamp
     }
 
     public static RequestTrace getLastRequest() {
-        TidContext tidContext = tIds.peek();
-        return getRequestByTId(tidContext.tId);
+        // peek first element offered in head
+        // TidContext tidContext = tIds.peek();
+        return getRequestByTId(lastTid.tId);
     }
 
     public static RequestTrace getCurrentRequest() {

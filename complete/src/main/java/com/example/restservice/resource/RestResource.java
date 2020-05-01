@@ -3,13 +3,11 @@ package com.example.restservice.resource;
 import com.example.restservice.PersonalGreeting;
 import com.example.restservice.service.RestService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class RestResource {
 

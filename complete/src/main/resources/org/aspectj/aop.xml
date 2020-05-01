@@ -8,8 +8,10 @@
     testing LTW based on https://github.com/dsyer/spring-boot-aspectj
     using custom loadTimeWeaver -javaagent:
     -->
-    <!-- AspectJ LTW instead of Spring AOP proxy -->
-    <weaver options="-debug -verbose -showWeaveInfo">
+    <!-- AspectJ LTW instead of Spring AOP proxy
+        options="-debug -verbose -showWeaveInfo"
+    -->
+    <weaver>
         <!-- only weave classes in this package -->
         <include within="com.example..*"/>
         <include within="com.paycycle..*"/>
