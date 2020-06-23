@@ -1,17 +1,15 @@
 package com.example.restservice.resource;
 
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Map;
 
-import com.example.restservice.service.RestService;
-import com.paycycle.util.devtools.HttpRequestEvent;
-import com.paycycle.util.devtools.HttpResponseEvent;
-import com.paycycle.util.devtools.RequestTrace;
-import com.paycycle.util.devtools.ThreadEvent;
-import com.example.restservice.PersonalGreeting;
-import com.paycycle.rest.common.Result;
-import com.paycycle.util.devtools.aspect.MethodTraceAspect;
-import com.paycycle.util.devtools.helper.RequestTracer;
+import com.tracer.util.devtools.HttpRequestEvent;
+import com.tracer.util.devtools.HttpResponseEvent;
+import com.tracer.util.devtools.RequestTrace;
+import com.tracer.util.devtools.ThreadEvent;
+import com.tracer.rest.common.Result;
+import com.tracer.util.devtools.aspect.MethodTraceAspect;
+import com.tracer.util.devtools.helper.RequestTracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +20,21 @@ public class TracingResource {
 
 	@Autowired
 	MethodTraceAspect methodTraceAspect;
+
+	@GetMapping("/traces")
+	public Result traces(@RequestHeader Map<String, String> allHeaders,
+					 @RequestParam Map<String,String> allRequestParams) {
+		try {
+			return Result.ResultBuilder
+					.aResult()
+					.data(
+							RequestTracer.all()
+					)
+					.build();
+		} finally{
+
+		}
+	}
 
 	// https://spring.io/guides/gs/rest-service-cors/
 	// https://stackoverflow.com/questions/43317967/handle-response-syntaxerror-unexpected-end-of-input-when-using-mode-no-cors?rq=1
