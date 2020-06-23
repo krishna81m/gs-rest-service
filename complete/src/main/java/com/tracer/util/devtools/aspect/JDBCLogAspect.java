@@ -29,8 +29,8 @@ public class JDBCLogAspect {
      * Caused by: org.springframework.aop.framework.AopConfigException:
      * Advice must be declared inside an aspect type: Offending method
      * 'public java.lang.Object
-     *  com.paycycle.util.devtools.aspect.JDBCLogAspect.aroundJdbcStatementExecute(org.aspectj.lang.ProceedingJoinPoint)
-     * throws java.lang.Throwable' in class [com.paycycle.util.devtools.aspect.JDBCLogAspect]
+     *  com.tracer.util.devtools.aspect.JDBCLogAspect.aroundJdbcStatementExecute(org.aspectj.lang.ProceedingJoinPoint)
+     * throws java.lang.Throwable' in class [com.tracer.util.devtools.aspect.JDBCLogAspect]
      */
     @Around("execution(* org.h2.command..*+.execute*(..))")
     public Object aroundJdbcStatementExecute(ProceedingJoinPoint joinPoint) throws Throwable {

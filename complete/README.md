@@ -1,4 +1,5 @@
 
+```
 Dev Tools - Mini Profiler UI:
     Display detailed requests on UI as they go through different applications
     Graph of all requests flowing through different applications
@@ -27,17 +28,16 @@ Two Output Responses:
     
 How it works:
     Main class that does end to end tracing by the TraceID or TransactionID: 
-    com.paycycle.util.devtools.helper.RequestTracer
+    com.tracer.util.devtools.helper.RequestTracer
         Tracing incoming Http Requests and their responses
-             com.paycycle.util.devtools.filter.HttpLoggingFilter
-        com.paycycle.util.devtools.helper.ThreadLocalHelper
-             tracks methods for Aspects defined in com.paycycle.util.devtools.aspect.MethodTraceAspect
-        com.paycycle.util.devtools.aspect.JDBCLogAspect
+             com.tracer.util.devtools.filter.HttpLoggingFilter
+        com.tracer.util.devtools.helper.ThreadLocalHelper
+             tracks methods for Aspects defined in com.tracer.util.devtools.aspect.MethodTraceAspect
+        com.tracer.util.devtools.aspect.JDBCLogAspect
              tracks DB requests 
-    All of them generate com.paycycle.util.devtools.Event implementations
+    All of them generate com.tracer.util.devtools.Event implementations
     Getting the latest request
         
     
-     
-    
+```  
     
