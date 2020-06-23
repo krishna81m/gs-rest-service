@@ -14,12 +14,12 @@
     <weaver>
         <!-- only weave classes in this package -->
         <include within="com.example..*"/>
-        <include within="com.paycycle..*"/>
+        <include within="com.tracer..*"/>
         <include within="org.h2.command..*"/>
     </weaver>
     <aspects>
         <!-- use only this aspect for weaving -->
-        <aspect name="com.paycycle.util.devtools.aspect.JDBCLogAspect"/>
-        <aspect name="com.paycycle.util.devtools.aspect.MethodTraceAspect"/>
+        <aspect name="com.tracer.util.devtools.aspect.JDBCLogAspect"/>
+        <aspect name="com.tracer.util.devtools.aspect.MethodTraceAspect"/>
     </aspects>
 </aspectj>
